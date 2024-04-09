@@ -14,18 +14,11 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
+#include "printf.h"
 
 volatile int panicked = 0;
 
-// lock to avoid interleaving concurrent printf's.
-static struct {
-  struct spinlock lock;
-  int locking;
-} pr;
-
-static char digits[] = "0123456789abcdef";
-
-static void
+void
 printint(int xx, int base, int sign)
 {
   char buf[16];
@@ -49,7 +42,7 @@ printint(int xx, int base, int sign)
     consputc(buf[i]);
 }
 
-static void
+void
 printptr(uint64 x)
 {
   int i;
