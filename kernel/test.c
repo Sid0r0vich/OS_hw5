@@ -24,9 +24,4 @@ void test_msg() {
 	for (int i = 0; i < 814; ++i) {
 		msgadd("Spam1234!");
 	}
-	msgadd("0");
-
-	acquire(&msgbuf.lock);
-	printf("%d\n", msgbuf.end);
-	release(&msgbuf.lock);
 }

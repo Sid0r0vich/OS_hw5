@@ -81,7 +81,6 @@ void pr_msg(const char* fmt, ...) {
 	int len = strlen(fmtticks);
 	fmtticks[len] = '\n';
 	fmtticks[len + 1] = '\0';
-	//fmt	printf("dmesg! beg: %d\n", msgbuf.begin);
 
     acquire(&tickslock);
 	int time = ticks;
@@ -165,11 +164,6 @@ uint64 sys_dmesg(void) {
 	if (copyout(p->pagetable, buf + MSGBUFLEN - msgbuf.begin, msgbuf.buf, msgbuf.begin) < 0) 
 		return -1;
 	release(&msgbuf.lock);
-
-	// printf("char %d: %d\n", msgbuf.begin, msgbuf.buf[msgbuf.begin]);
-	// for (int i = msgbuf.begin + 1; i != msgbuf.end; i = (i + 1) % MSGBUFLEN) {
-		// printf("char %d: %d\n", i, msgbuf.buf[i]);
-	// }
 
 	return 0;
 }
