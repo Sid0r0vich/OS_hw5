@@ -34,10 +34,9 @@ exec(char *path, char **argv)
   begin_op();
 
   acquire(&p->lock);
-  //int pid = p->pid;
+  int pid = p->pid;
   release(&p->lock);
-  //pr_msg("pid: %d, name: %s", pid, p->name);
-  pr_msg("msg!");
+  pr_msg("exec: pid %d, name %s", pid, p->name);
 
   if((ip = namei(path)) == 0){
     end_op();

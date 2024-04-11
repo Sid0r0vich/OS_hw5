@@ -4,8 +4,7 @@
 #include "spinlock.h"
 #include "proc.h"
 
-//#define MSGBUFLEN (NBUFPG * PGSIZE)
-#define MSGBUFLEN 128
+#define MSGBUFLEN (NBUFPG * PGSIZE)
 
 struct msgbuff {
 	struct spinlock lock;

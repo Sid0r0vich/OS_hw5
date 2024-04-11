@@ -18,13 +18,15 @@ void test_msg() {
 	assert(msgbuf.end == 21 + 14);
 	release(&msgbuf.lock);
 
-	msgadd("Third message!");
-	assert(msgbuf.end == 21 + 14 + 15);
+	msgadd("This is hird message!");
+	assert(msgbuf.end == 21 + 14 + 22);
 
-	printf("%s\n", msgbuf.buf);
-
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 814; ++i) {
 		msgadd("Spam1234!");
 	}
 	msgadd("0");
+
+	acquire(&msgbuf.lock);
+	printf("%d\n", msgbuf.end);
+	release(&msgbuf.lock);
 }

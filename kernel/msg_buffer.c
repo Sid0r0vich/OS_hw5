@@ -74,11 +74,13 @@ void pr_msg(const char* fmt, ...) {
     	
     va_list args;
 	
-	char fmtticks[ strlen(fmt) + 6];
+	char fmtticks[ strlen(fmt) + 7];
 	char* tmp = "[%d] ";
 	safestrcpy(fmtticks, tmp, 6);
 	safestrcpy(fmtticks + 5, fmt, strlen(fmt) + 1);
-	fmtticks[ strlen(fmtticks) ] = '\n';
+	int len = strlen(fmtticks);
+	fmtticks[len] = '\n';
+	fmtticks[len + 1] = '\0';
 	//fmt	printf("dmesg! beg: %d\n", msgbuf.begin);
 
     acquire(&tickslock);
@@ -155,7 +157,6 @@ void pr_msg(const char* fmt, ...) {
 uint64 sys_dmesg(void) {
 	uint64 buf;
 	argaddr(0, &buf);
-	//printf("buf: %s\n\n", buf);
 
 	struct proc *p = myproc();
 	acquire(&msgbuf.lock);
@@ -164,6 +165,11 @@ uint64 sys_dmesg(void) {
 	if (copyout(p->pagetable, buf + MSGBUFLEN - msgbuf.begin, msgbuf.buf, msgbuf.begin) < 0) 
 		return -1;
 	release(&msgbuf.lock);
+
+	// printf("char %d: %d\n", msgbuf.begin, msgbuf.buf[msgbuf.begin]);
+	// for (int i = msgbuf.begin + 1; i != msgbuf.end; i = (i + 1) % MSGBUFLEN) {
+		// printf("char %d: %d\n", i, msgbuf.buf[i]);
+	// }
 
 	return 0;
 }
