@@ -9,6 +9,7 @@ msgbuff msgbuf;
 static int flag = 0;
 
 void msgbufinit() {
+	initlock(&msgbuf.lock, "msgbuflock");
 	acquire(&msgbuf.lock);
 	msgbuf.begin = msgbuf.end = 0;
 	release(&msgbuf.lock);
@@ -86,20 +87,16 @@ void pr_msg(const char* fmt, ...) {
 	int time = ticks;
 	release(&tickslock);
 
-	int i, c, locking;
+	int i, c;
 	int targ = 1;
   	char *s;
 
-  	locking = pr.locking;
-  	if(locking)
-    	acquire(&pr.lock);
   	acquire(&msgbuf.lock);
   	
   	va_start(args, fmt);
   	for(i = 0; (c = fmtticks[i] & 0xff) != 0; i++) {
     	if(c != '%') {
       		putc(c);
-      		consputc(c);
       		continue;
     	}
 	    c = fmtticks[++i] & 0xff;
@@ -112,17 +109,14 @@ void pr_msg(const char* fmt, ...) {
 		    		targ = 0;
 		    		argd = time;
 		    	} else argd = va_arg(args, int);
-		    	printint(argd, 10, 1);
 		      	bprintint(argd, 10, 1);
 		      	break;
 		    case 'x':
 		    	int argx = va_arg(args, int);
-		    	printint(argx, 16, 1);
 		      	bprintint(argx, 16, 1);
 		      	break;
 		    case 'p':
 		    	uint64 argp = va_arg(args, uint64);
-		    	printptr(argp);
 		      	bprintptr(argp);
 		      	break;
 		    case 's':
@@ -131,26 +125,20 @@ void pr_msg(const char* fmt, ...) {
 		        	s = "(null)";
 		      	for(; *s; s++) {
 		        	putc(*s);
-		        	consputc(*s);
 		        }
 		      	break;
 		    case '%':
 		      	putc('%');
-		      	consputc('%');
 		      	break;
 		    default:
 		      	putc('%');
-		      	consputc('%');
 		      	putc(c);
-		      	consputc(c);
 		      	break;
 		}
  	}
  	va_end(args);
  	
   	release(&msgbuf.lock);
-  	if(locking)
-    	release(&pr.lock);
 }
 
 uint64 sys_dmesg(void) {

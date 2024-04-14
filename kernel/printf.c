@@ -18,7 +18,7 @@
 
 volatile int panicked = 0;
 
-void
+static void
 printint(int xx, int base, int sign)
 {
   char buf[16];
@@ -42,7 +42,7 @@ printint(int xx, int base, int sign)
     consputc(buf[i]);
 }
 
-void
+static void
 printptr(uint64 x)
 {
   int i;
