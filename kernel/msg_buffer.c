@@ -19,8 +19,15 @@ void putc(char c) {
 	msgbuf.buf[msgbuf.end++] = c;
 	msgbuf.end %= MSGBUFLEN;
 	if (msgbuf.end < 0) msgbuf.end += MSGBUFLEN;
-	if (msgbuf.end == (msgbuf.begin + 1) % MSGBUFLEN && flag)
+	if (msgbuf.end == (msgbuf.begin + 1) % MSGBUFLEN && flag) {
 		msgbuf.begin = msgbuf.end;
+		while(msgbuf.buf[msgbuf.begin] != '\n') {
+			++msgbuf.begin;
+			msgbuf.begin %= MSGBUFLEN;
+		}
+		++msgbuf.begin;
+		msgbuf.begin %= MSGBUFLEN;
+	}
 	else ++flag;
 }
 
@@ -145,13 +152,22 @@ uint64 sys_dmesg(void) {
 	uint64 buf;
 	argaddr(0, &buf);
 
+	int res = 0;
 	struct proc *p = myproc();
 	acquire(&msgbuf.lock);
-	if (copyout(p->pagetable, buf, msgbuf.buf + msgbuf.begin, MSGBUFLEN - msgbuf.begin) < 0)
-		return -1;
-	if (copyout(p->pagetable, buf + MSGBUFLEN - msgbuf.begin, msgbuf.buf, msgbuf.begin) < 0) 
-		return -1;
+	if (msgbuf.begin < msgbuf.end || !flag) {
+		if (copyout(p->pagetable, buf, msgbuf.buf + msgbuf.begin, msgbuf.end - msgbuf.begin) < 0) {
+			res = 1;
+		}
+	}
+	else {
+		if (copyout(p->pagetable, buf, msgbuf.buf + msgbuf.begin, MSGBUFLEN - msgbuf.begin) < 0)
+			res = 1;
+		if (copyout(p->pagetable, buf + MSGBUFLEN - msgbuf.begin, msgbuf.buf, msgbuf.end) < 0) 
+			res = 1;
+	}
+
 	release(&msgbuf.lock);
 
-	return 0;
+	return res;
 }
