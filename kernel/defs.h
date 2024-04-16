@@ -190,6 +190,9 @@ void			msgbufinit(void);
 void			msgadd(char*);
 void			pr_msg(const char*, ...);
 
+// msg_log.c
+void			logtimersinit();
+
 // test.c
 void			test_msg(void);
 

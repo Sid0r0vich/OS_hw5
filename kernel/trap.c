@@ -11,6 +11,8 @@ uint ticks;
 
 extern char trampoline[], uservec[], userret[];
 
+extern char logflags;
+
 // in kernelvec.S, calls kerneltrap().
 void kernelvec();
 
@@ -186,11 +188,19 @@ devintr()
     // irq indicates which device interrupted.
     int irq = plic_claim();
 
+	if (logflags & 0b0010) {
+      if(irq == UART0_IRQ) {
+        pr_msg("INTERRUPT num: %d, device: UART, event: press %d", irq, 'f');
+      } else if(irq == VIRTIO0_IRQ) {
+        pr_msg("INTERRUPT num: %d, device: virtio", irq);
+      }
+    }
+
     if(irq == UART0_IRQ){
       uartintr();
     } else if(irq == VIRTIO0_IRQ){
       virtio_disk_intr();
-    } else if(irq){
+    } else if(irq) {
       printf("unexpected interrupt irq=%d\n", irq);
     }
 

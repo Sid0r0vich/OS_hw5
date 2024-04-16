@@ -7,6 +7,8 @@
 #include "defs.h"
 #include "elf.h"
 
+extern char logflags;
+
 static int loadseg(pde_t *, uint64, struct inode *, uint, uint);
 
 int flags2perm(int flags)
@@ -33,12 +35,14 @@ exec(char *path, char **argv)
 
   begin_op();
 
-  acquire(&p->lock);
-  int pid = p->pid;
-  release(&p->lock);
-  char* name = argv[0];
-  if (*name == '/') ++name;
-  pr_msg("exec: pid %d, name %s", pid, name);
+  if (logflags & 0b1000) {
+  	acquire(&p->lock);
+  	int pid = p->pid;
+  	release(&p->lock);
+  	char* name = argv[0];
+  	if (*name == '/') ++name;
+  	pr_msg("EXEC pid: %d, pname: %s", pid, name);
+  }
 
   if((ip = namei(path)) == 0){
     end_op();

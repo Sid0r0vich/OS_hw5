@@ -20,6 +20,8 @@ static void freeproc(struct proc *p);
 
 extern char trampoline[]; // trampoline.S
 
+extern char logflags;
+
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
 // memory model when using p->parent.
@@ -458,6 +460,21 @@ scheduler(void)
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
+        struct trapframe* tf = p->trapframe;
+		if (logflags & 0b0100) {			  	
+			pr_msg("SWITCH pid: %d, pname: %s\nTRAPFRAME\nkernel_satp: %d\nkernel_sp: %d\nkernel_trap: %d\nepc: %d\nkernel_hartid: %d\nra: %d\nsp: %d\ngp: %d\ntp: %d\nt0: %d\nt1: %d\nt2: %d\ns0: %d\ns1: %d\na0: %d\na1: %d\na2: %d\na3: %d\na4: %d\na5: %d\na6: %d\na7: %d\ns2: %d\ns3: %d\ns4: %d\ns5: %d\ns6: %d\ns7: %d\ns8: %d\ns9: %d\ns10: %d\ns11: %d\nt3: %d\nt4: %d\nt5: %d\nt6: %d", 
+				p->pid, p->name,
+				tf->kernel_satp, tf->kernel_sp, tf->kernel_trap, tf->epc, tf->kernel_hartid,
+				tf->ra, tf->sp, tf->gp, tf->tp, 
+				tf->t0, tf->t1, tf->t2, tf->s0, 
+				tf->s1, tf->a0, tf->a1, tf->a2, 
+				tf->a3, tf->a4, tf->a4, tf->a5,
+				tf->a6, tf->a7, tf->s2, tf->s3,
+				tf->s4, tf->s5, tf->s6, tf->s7,
+				tf->s8, tf->s9, tf->s10, tf->s11,
+				tf->t3, tf->t4, tf->t5, tf->t6);
+		}
+        
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);

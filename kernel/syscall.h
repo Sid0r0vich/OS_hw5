@@ -21,3 +21,7 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_dmesg  22
+#define SYS_setlogon 	23
+#define SYS_setlogoff	24
+#define SYS_setlogtimer	25
+#define SYS_dellogtimer	26

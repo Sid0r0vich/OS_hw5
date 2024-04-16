@@ -7,6 +7,8 @@
 #include "syscall.h"
 #include "defs.h"
 
+extern char logflags;
+
 // Fetch the uint64 at addr from the current process.
 int
 fetchaddr(uint64 addr, uint64 *ip)
@@ -102,6 +104,10 @@ extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
 extern uint64 sys_dmesg(void);
+extern uint64 sys_setlogon(void);
+extern uint64 sys_setlogoff(void);
+extern uint64 sys_setlogtimer(void);
+extern uint64 sys_dellogtimer(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -128,6 +134,39 @@ static uint64 (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_dmesg]   sys_dmesg,
+[SYS_setlogon]		sys_setlogon,
+[SYS_setlogoff]		sys_setlogoff,
+[SYS_setlogtimer]	sys_setlogtimer,
+[SYS_dellogtimer]	sys_dellogtimer
+};
+
+static char* syscall_names[] = {
+[SYS_fork]    "fork",
+[SYS_exit]    "exit",
+[SYS_wait]    "wait",
+[SYS_pipe]    "pipe",
+[SYS_read]    "read",
+[SYS_kill]    "kill",
+[SYS_exec]    "exec",
+[SYS_fstat]   "fstat",
+[SYS_chdir]   "chdir",
+[SYS_dup]     "dup",
+[SYS_getpid]  "getpid",
+[SYS_sbrk]    "sbrk",
+[SYS_sleep]   "sleep",
+[SYS_uptime]  "uptime",
+[SYS_open]    "open",
+[SYS_write]   "write",
+[SYS_mknod]   "mknod",
+[SYS_unlink]  "unlink",
+[SYS_link]    "link",
+[SYS_mkdir]   "mkdir",
+[SYS_close]   "close",
+[SYS_dmesg]   "dmesg",
+[SYS_setlogon]		"setlogon",
+[SYS_setlogoff]		"setlogoff",
+[SYS_setlogtimer]	"setlogtimer",
+[SYS_dellogtimer]	"dellogtimer"
 };
 
 void
@@ -137,6 +176,20 @@ syscall(void)
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
+  
+  if (logflags & 0b0001) {
+  	acquire(&p->lock);
+  	int pid = p->pid;
+  	release(&p->lock);
+
+  	char* callname;
+  	if (num > 0 && num < NELEM(syscall_names)) {
+  		callname = syscall_names[num];
+  	} else callname = "unknown";
+
+  	pr_msg("SYSCALL pid: %d, pname: %s, callnum: %d, callname: %s", pid, p->name, num, callname);
+  }
+  
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0

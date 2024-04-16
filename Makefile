@@ -30,6 +30,7 @@ OBJS = \
   $K/plic.o \
   $K/virtio_disk.o \
   $K/msg_buffer.o \
+  $K/msg_log.o \
   $K/test.o
 
 # riscv64-unknown-elf- or riscv64-linux-gnu-
@@ -135,6 +136,10 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 	$U/_dmesg\
+	$U/_setlogoff\
+	$U/_setlogon\
+	$U/_setlogtimer\
+	$U/_dellogtimer\
 	$U/_test
 
 fs.img: mkfs/mkfs README $(UPROGS)

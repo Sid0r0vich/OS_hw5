@@ -90,10 +90,6 @@ void pr_msg(const char* fmt, ...) {
 	fmtticks[len] = '\n';
 	fmtticks[len + 1] = '\0';
 
-    acquire(&tickslock);
-	int time = ticks;
-	release(&tickslock);
-
 	int i, c;
 	int targ = 1;
   	char *s;
@@ -114,7 +110,7 @@ void pr_msg(const char* fmt, ...) {
 		    	int argd;
 		    	if (targ) {
 		    		targ = 0;
-		    		argd = time;
+		    		argd = ticks;
 		    	} else argd = va_arg(args, int);
 		      	bprintint(argd, 10, 1);
 		      	break;
@@ -166,7 +162,6 @@ uint64 sys_dmesg(void) {
 		if (copyout(p->pagetable, buf + MSGBUFLEN - msgbuf.begin, msgbuf.buf, msgbuf.end) < 0) 
 			res = 1;
 	}
-
 	release(&msgbuf.lock);
 
 	return res;

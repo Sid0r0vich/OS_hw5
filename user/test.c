@@ -1,9 +1,11 @@
 #include "kernel/types.h"
 #include "user.h"
 
+#include "kernel/msg_buffer.h"
+
 int main() {
-	char* argv[] = {"/ws", "user/test.c"};
-	exec("/wc", argv);
+	for (int i = 0; i < 3; ++i) fork();
+	sleep(1);
 	
 	return 0;
 }

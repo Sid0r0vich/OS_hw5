@@ -9,7 +9,7 @@ int dmsg() {
 		fprintf(2, "dmesg error!\n");
 		return -1;
 	} else {
-		fprintf(1, buf);
+		printf(buf);
 	}
 
 	return 0;
