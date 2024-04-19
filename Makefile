@@ -140,6 +140,7 @@ UPROGS=\
 	$U/_setlogon\
 	$U/_setlogtimer\
 	$U/_dellogtimer\
+	$U/_getlogflags\
 	$U/_test
 
 fs.img: mkfs/mkfs README $(UPROGS)

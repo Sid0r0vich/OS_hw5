@@ -41,3 +41,4 @@ entry("setlogon");
 entry("setlogoff");
 entry("setlogtimer");
 entry("dellogtimer");
+entry("getlogflags");

@@ -6,8 +6,10 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
+#include "msg_log.h"
 
 extern char logflags;
+extern struct logtimers logtmr;
 
 // Fetch the uint64 at addr from the current process.
 int
@@ -108,6 +110,7 @@ extern uint64 sys_setlogon(void);
 extern uint64 sys_setlogoff(void);
 extern uint64 sys_setlogtimer(void);
 extern uint64 sys_dellogtimer(void);
+extern uint64 sys_getlogflags(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -137,7 +140,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_setlogon]		sys_setlogon,
 [SYS_setlogoff]		sys_setlogoff,
 [SYS_setlogtimer]	sys_setlogtimer,
-[SYS_dellogtimer]	sys_dellogtimer
+[SYS_dellogtimer]	sys_dellogtimer,
+[SYS_getlogflags]	sys_getlogflags
 };
 
 static char* syscall_names[] = {
@@ -166,7 +170,8 @@ static char* syscall_names[] = {
 [SYS_setlogon]		"setlogon",
 [SYS_setlogoff]		"setlogoff",
 [SYS_setlogtimer]	"setlogtimer",
-[SYS_dellogtimer]	"dellogtimer"
+[SYS_dellogtimer]	"dellogtimer",
+[SYS_getlogflags]	"getlogflags"
 };
 
 void
@@ -176,8 +181,11 @@ syscall(void)
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
-  
-  if (logflags & 0b0001) {
+
+  acquire(&logtmr.lock);
+  int time = logtmr.syscall;
+  release(&logtmr.lock);
+  if (logflags & 0b0001 && ticks < time) {
   	acquire(&p->lock);
   	int pid = p->pid;
   	release(&p->lock);

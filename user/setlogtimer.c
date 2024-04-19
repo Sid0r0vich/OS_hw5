@@ -10,16 +10,16 @@ int main(int argc, char* argv[]) {
 
 	int time = atoi(argv[2]);
 
-	if (!strcmp(argv[1], "LOGSYSCALL")) {
+	if (!strcmp(argv[1], "SYSCALL")) {
 		setlogtimer(LOGSYSCALLON, time);
 	}
-	else if (!strcmp(argv[1], "LOGINTERRUPT")) {
+	else if (!strcmp(argv[1], "INTERRUPT")) {
 		setlogtimer(LOGINTERRUPTON, time);
 	}
-	else if (!strcmp(argv[1], "LOGTRAP")) {
+	else if (!strcmp(argv[1], "TRAP")) {
 		setlogtimer(LOGTRAPON, time);
 	}
-	else if (!strcmp(argv[1], "LOGEXEC")) {
+	else if (!strcmp(argv[1], "EXEC")) {
 		setlogtimer(LOGEXECON, time);
 	}
 

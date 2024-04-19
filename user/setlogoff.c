@@ -8,18 +8,19 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	if (!strcmp(argv[1], "LOGSYSCALL")) {
+	if (!strcmp(argv[1], "SYSCALL")) {
 		setlogoff(LOGSYSCALLOFF);
 	}
-	else if (!strcmp(argv[1], "LOGINTERRUPT")) {
+	else if (!strcmp(argv[1], "INTERRUPT")) {
 		setlogoff(LOGINTERRUPTOFF);
 	}
-	else if (!strcmp(argv[1], "LOGTRAP")) {
+	else if (!strcmp(argv[1], "TRAP")) {
 		setlogoff(LOGTRAPOFF);
 	}
-	else if (!strcmp(argv[1], "LOGEXEC")) {
+	else if (!strcmp(argv[1], "EXEC")) {
 		setlogoff(LOGEXECOFF);
 	}
+	else fprintf(2, "wrong flag: %s!\n", argv[1]);
 
 	return 0;
 }

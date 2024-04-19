@@ -6,8 +6,10 @@
 #include "proc.h"
 #include "defs.h"
 #include "elf.h"
+#include "msg_log.h"
 
 extern char logflags;
+extern struct logtimers logtmr;
 
 static int loadseg(pde_t *, uint64, struct inode *, uint, uint);
 
@@ -35,13 +37,16 @@ exec(char *path, char **argv)
 
   begin_op();
 
-  if (logflags & 0b1000) {
+  acquire(&logtmr.lock);
+  int time = logtmr.exec;
+  release(&logtmr.lock);
+  if (logflags & 0b1000 && ticks < time) {
   	acquire(&p->lock);
   	int pid = p->pid;
   	release(&p->lock);
   	char* name = argv[0];
   	if (*name == '/') ++name;
-  	pr_msg("EXEC pid: %d, pname: %s", pid, name);
+  	pr_msg("EXEC pid: %d, appname: %s", pid, name);
   }
 
   if((ip = namei(path)) == 0){

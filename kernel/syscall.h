@@ -25,3 +25,4 @@
 #define SYS_setlogoff	24
 #define SYS_setlogtimer	25
 #define SYS_dellogtimer	26
+#define SYS_getlogflags 27

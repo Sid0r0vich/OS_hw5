@@ -21,9 +21,13 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
+#include "msg_log.h"
 
 #define BACKSPACE 0x100
 #define C(x)  ((x)-'@')  // Control-x
+
+extern char logflags;
+extern struct logtimers logtmr;
 
 //
 // send one character to the uart.
@@ -173,6 +177,33 @@ consoleintr(int c)
       }
     }
     break;
+  }
+
+  acquire(&logtmr.lock);
+  int time = logtmr.interrupt;
+  release(&logtmr.lock);
+  if (logflags & 0b0010 && ticks < time) {
+	switch(c){
+	  case C('P'):  // Print process list.
+	  case C('U'):  // Kill line.
+	  case C('H'): // Backspace
+	    char chr[2];
+	    chr[0] = c + '@';
+	    chr[1] = 0;
+		pr_msg("INTERRUPT num: 10, device: UART, event: press ctrl-%s", chr);
+	    break;
+	  case '\x7f': // Delete key
+	    // pr_msg("INTERRUPT num: 10, device: UART, event: press delete");
+	  default:
+	    // if(c != 0 && cons.e-cons.r < INPUT_BUF_SIZE){
+	      // c = (c == '\r') ? '\n' : c;
+	      // char chr[2];
+	      // chr[0] = c;
+	      // chr[1] = 0;
+	      // pr_msg("INTERRUPT num: 10, device: UART, event: press %s", chr);
+	    // };
+	    break;
+	}
   }
   
   release(&cons.lock);

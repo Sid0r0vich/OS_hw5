@@ -9,7 +9,7 @@
 #include "msg_log.h"
 
 struct spinlock logflagslock;
-char logflags = 0b0100;
+char logflags = 0b0000;
 
 struct logtimers logtmr;
 
@@ -23,8 +23,8 @@ void logtimersinit() {
 }
 
 void sys_setlogon(void) {
-	char flag;
-	argstr(0, &flag, 1);
+	uint32 flag;
+	argint(0, &flag);
 
 	acquire(&logflagslock);
 	logflags |= flag;
@@ -32,17 +32,21 @@ void sys_setlogon(void) {
 }
 
 void sys_setlogoff(void) {
-	char flag;
-	argstr(0, &flag, 1);
+	uint32 flag;
+	argint(0, &flag);
 
 	acquire(&logflagslock);
 	logflags &= flag;
 	release(&logflagslock);
 }
 
+char sys_getlogflags(void) {
+	return logflags;
+}
+
 void sys_setlogtimer(void) {
-	char flag;
-	argstr(0, &flag, 1);
+	uint32 flag;
+	argint(0, &flag);
 
 	int time;
 	argint(1, &time);
@@ -67,8 +71,8 @@ void sys_setlogtimer(void) {
 }
 
 void sys_dellogtimer(void) {
-	char flag;
-	argstr(0, &flag, 1);
+	uint32 flag;
+	argint(0, &flag);
 
 	acquire(&logtmr.lock);
 	switch (flag) {
@@ -88,7 +92,7 @@ void sys_dellogtimer(void) {
 	release(&logtmr.lock);
 }
 
-int checktimer(char flag) {
+int checktimer(uint32 flag) {
 	acquire(&logtmr.lock);
 	switch (flag) {
 		case LOGSYSCALL:

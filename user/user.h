@@ -23,10 +23,11 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int dmesg(char*);
-void setlogon(char);
-void setlogoff(char);
-void setlogtimer(char, int);
-void dellogtimer(char);
+void setlogon(int);
+void setlogoff(int);
+void setlogtimer(int, int);
+void dellogtimer(int);
+char getlogflags(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

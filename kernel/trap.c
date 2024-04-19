@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "msg_log.h"
 
 struct spinlock tickslock;
 uint ticks;
@@ -12,6 +13,7 @@ uint ticks;
 extern char trampoline[], uservec[], userret[];
 
 extern char logflags;
+extern struct logtimers logtmr;
 
 // in kernelvec.S, calls kerneltrap().
 void kernelvec();
@@ -188,10 +190,11 @@ devintr()
     // irq indicates which device interrupted.
     int irq = plic_claim();
 
-	if (logflags & 0b0010) {
-      if(irq == UART0_IRQ) {
-        pr_msg("INTERRUPT num: %d, device: UART, event: press %d", irq, 'f');
-      } else if(irq == VIRTIO0_IRQ) {
+	acquire(&logtmr.lock);
+  	int time = logtmr.interrupt;
+  	release(&logtmr.lock);
+	if (logflags & 0b0010 && ticks < time) {
+	  if(irq == VIRTIO0_IRQ) {
         pr_msg("INTERRUPT num: %d, device: virtio", irq);
       }
     }
